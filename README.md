@@ -18,7 +18,7 @@ docker-compose run convert
 
 ## Details
 
-- 3500kbps
+- 3300kbps
 - mono 128kbps audio w/ 44.1kHz
 - width 1080 pixels
 
