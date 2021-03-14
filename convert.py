@@ -33,7 +33,7 @@ def mp4cmd(input_path, output_path, null_path, config):
     cmd = f'ffmpeg -i {input_path} -threads {THREADS} -an -vcodec {codec}'\
         + f' -crf {crf} -b:v {kbps}k -vf "fps={fps},{scale}" -pass 1'\
         + f' -preset {preset} -f {fmt} {null_path} -y && ffmpeg -i {input_path}'\
-        + f' -threads {THREADS} -ac 1 -ar {khz}-c:a aac'\
+        + f' -threads {THREADS} -ac 1 -ar {khz} -c:a aac'\
         + f' -b:a {aac_kbps}k -vcodec {codec} -crf {crf}'\
         + f' -b:v {kbps}k -vf "fps={fps},{scale}"'\
         + f' -pass 2 -preset {preset} {output_path}.{fmt} -y'
