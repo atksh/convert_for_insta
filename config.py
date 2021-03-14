@@ -4,7 +4,7 @@ from dataclasses import dataclass
 @dataclass
 class ConfigMP4:
     size: int = 1080
-    fps: int = 30
+    fps: str = '30000/1001'
     crf: int = 18
     kbps: int = 3500
     aac_kbps: int = 128
@@ -17,7 +17,7 @@ class ConfigMP4:
 @dataclass
 class ConfigVP8:
     size: int = 1080
-    fps: int = 30
+    fps: str = '30000/1001'
     crf: int = 5
     qmin: int = 5
     qmax: int = 50
