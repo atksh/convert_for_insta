@@ -29,10 +29,12 @@ def mp4cmd(input_path, output_path, null_path, config):
     aac_kbps = config.aac_kbps
     fmt = config.fmt
     codec = config.codec
+    khz = config.khz
     cmd = f'ffmpeg -i {input_path} -threads {THREADS} -an -vcodec {codec}'\
         + f' -crf {crf} -b:v {kbps}k -vf "fps={fps},{scale}" -pass 1'\
         + f' -preset {preset} -f {fmt} {null_path} -y && ffmpeg -i {input_path}'\
-        + f' -threads {THREADS} -ac 1 -c:a aac -b:a {aac_kbps}k -vcodec {codec} -crf {crf}'\
+        + f' -threads {THREADS} -ac 1 -ar {khz}-c:a aac'\
+        + f' -b:a {aac_kbps}k -vcodec {codec} -crf {crf}'\
         + f' -b:v {kbps}k -vf "fps={fps},{scale}"'\
         + f' -pass 2 -preset {preset} {output_path}.{fmt} -y'
     return cmd
@@ -49,12 +51,14 @@ def vp8cmd(input_path, output_path, null_path, config):
     codec = config.codec
     qmin = config.qmin
     qmax = config.qmax
+    khz = config.khz
     cmd = f'ffmpeg -i {input_path} -threads {THREADS} -an -vcodec {codec}'\
         + f' -crf {crf} -b:v {kbps}k -vf "fps={fps},{scale}" -pass 1'\
         + f' -f {fmt} {null_path}.{fmt} -quality {quality} -y'\
         + f' -qmin {qmin} -qmax {qmax}'\
         + f' && ffmpeg -i {input_path}'\
-        + f' -threads {THREADS} -ac 1 -c:a libopus -b:a {libopus_kbps}k -vcodec {codec} -crf {crf}'\
+        + f' -threads {THREADS} -ac 1 -ar {khz} -c:a libopus'\
+        + f' -b:a {libopus_kbps}k -vcodec {codec} -crf {crf}'\
         + f' -b:v {kbps}k -vf "fps={fps},{scale}"'\
         + f' -qmin {qmin} -qmax {qmax}'\
         + f' -pass 2 {output_path}.{fmt} -y'

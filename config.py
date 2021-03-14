@@ -11,6 +11,7 @@ class ConfigMP4:
     fmt: str = 'mp4'
     codec: str = 'libx264'
     preset: str = 'slow'
+    khz: int = 44100
 
 
 @dataclass
@@ -25,3 +26,4 @@ class ConfigVP8:
     fmt: str = 'webm'
     codec: str = 'libvpx'
     quality: str = 'good'
+    khz: int = 44100
