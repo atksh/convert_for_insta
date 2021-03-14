@@ -104,7 +104,8 @@ def convert(mp4config, vp8config, filename, input_dir='input', output_dir='outpu
 def main():
     mp4config = ConfigMP4()
     vp8config = ConfigVP8()
-    fmts = ['mp4', 'mov', 'MOV', 'webm', 'avi']
+    fmts = ['mp4', 'mov', 'MOV', 'webm', 'avi',
+            'flv', 'aaf', 'mkv', 'mpeg', 'wmv']
     files = sum([glob.glob(f'./input/*.{fmt}') for fmt in fmts], [])
     for fname in files:
         fname = fname.split('/')[-1]
