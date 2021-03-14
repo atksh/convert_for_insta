@@ -18,10 +18,6 @@ docker-compose run convert
 
 ## Details
 
-- 3300kbps
-- mono 128kbps audio w/ 44.1kHz
-- width 1080 pixels
-
 You can change more parameters by editing `config.py`.
 
 
