@@ -16,6 +16,15 @@ docker-compose run convert
 # and automatically store them in the output directory.
 ```
 
+## Details
+
+- 3500kbps
+- mono 128kbps audio
+- width 1080 pixels
+
+You can change more parameters by editing `config.py`.
+
+
 # Regulations of in-feed videos on Instagram
 - Maximum 30 frames per second.
 - Square video minimum resolution is 600 x 600. Max is 1080 x 1080.

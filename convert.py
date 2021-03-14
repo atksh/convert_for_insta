@@ -9,7 +9,7 @@ from config import ConfigVP8, ConfigMP4
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
-THREADS = multiprocessing.cpu_count()
+THREADS = min(16, multiprocessing.cpu_count())
 
 
 def silentremove(filename):
@@ -32,7 +32,7 @@ def mp4cmd(input_path, output_path, null_path, config):
     cmd = f'ffmpeg -i {input_path} -threads {THREADS} -an -vcodec {codec}'\
         + f' -crf {crf} -b:v {kbps}k -vf "fps={fps},{scale}" -pass 1'\
         + f' -preset {preset} -f {fmt} {null_path} -y && ffmpeg -i {input_path}'\
-        + f' -threads {THREADS} -c:a aac -b:a {aac_kbps}k -vcodec {codec} -crf {crf}'\
+        + f' -threads {THREADS} -ac 1 -c:a aac -b:a {aac_kbps}k -vcodec {codec} -crf {crf}'\
         + f' -b:v {kbps}k -vf "fps={fps},{scale}"'\
         + f' -pass 2 -preset {preset} {output_path}.{fmt} -y'
     return cmd
@@ -54,7 +54,7 @@ def vp8cmd(input_path, output_path, null_path, config):
         + f' -f {fmt} {null_path}.{fmt} -quality {quality} -y'\
         + f' -qmin {qmin} -qmax {qmax}'\
         + f' && ffmpeg -i {input_path}'\
-        + f' -threads {THREADS} -c:a libopus -b:a {libopus_kbps}k -vcodec {codec} -crf {crf}'\
+        + f' -threads {THREADS} -ac 1 -c:a libopus -b:a {libopus_kbps}k -vcodec {codec} -crf {crf}'\
         + f' -b:v {kbps}k -vf "fps={fps},{scale}"'\
         + f' -qmin {qmin} -qmax {qmax}'\
         + f' -pass 2 {output_path}.{fmt} -y'
