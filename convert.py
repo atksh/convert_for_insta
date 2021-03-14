@@ -4,11 +4,12 @@ import tempfile
 import os
 import subprocess
 import glob
-from dataclasses import dataclass
+import multiprocessing
+from config import ConfigVP8, ConfigMP4
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
-THREADS = 8
+THREADS = multiprocessing.cpu_count()
 
 
 def silentremove(filename):
@@ -17,32 +18,6 @@ def silentremove(filename):
     except Exception as e:
         logging.warning(e)
         pass
-
-
-@dataclass
-class ConfigMP4:
-    size: int = 1080
-    fps: int = 30
-    crf: int = 18
-    kbps: int = 3500
-    aac_kbps: int = 128
-    fmt: str = 'mp4'
-    codec: str = 'libx264'
-    preset: str = 'slow'
-
-
-@dataclass
-class ConfigVP8:
-    size: int = 1080
-    fps: int = 30
-    crf: int = 5
-    qmin: int = 5
-    qmax: int = 50
-    kbps: int = 3500
-    libopus_kbps: int = 128
-    fmt: str = 'webm'
-    codec: str = 'libvpx'
-    quality: str = 'good'
 
 
 def mp4cmd(input_path, output_path, null_path, config):
@@ -56,10 +31,10 @@ def mp4cmd(input_path, output_path, null_path, config):
     codec = config.codec
     cmd = f'ffmpeg -i {input_path} -threads {THREADS} -an -vcodec {codec}'\
         + f' -crf {crf} -b:v {kbps}k -vf "fps={fps},{scale}" -pass 1'\
-        + f' -preset {preset} -f {fmt} {null_path} && ffmpeg -i {input_path}'\
+        + f' -preset {preset} -f {fmt} {null_path} -y && ffmpeg -i {input_path}'\
         + f' -threads {THREADS} -c:a aac -b:a {aac_kbps}k -vcodec {codec} -crf {crf}'\
         + f' -b:v {kbps}k -vf "fps={fps},{scale}"'\
-        + f' -pass 2 -preset {preset} {output_path}.{fmt}'
+        + f' -pass 2 -preset {preset} {output_path}.{fmt} -y'
     return cmd
 
 
@@ -72,17 +47,26 @@ def vp8cmd(input_path, output_path, null_path, config):
     fmt = config.fmt
     quality = config.quality
     codec = config.codec
+    qmin = config.qmin
+    qmax = config.qmax
     cmd = f'ffmpeg -i {input_path} -threads {THREADS} -an -vcodec {codec}'\
         + f' -crf {crf} -b:v {kbps}k -vf "fps={fps},{scale}" -pass 1'\
-        + f' -f {fmt} {null_path}.{fmt} -quality {quality}'\
-        + f'&& ffmpeg -i {input_path}'\
+        + f' -f {fmt} {null_path}.{fmt} -quality {quality} -y'\
+        + f' -qmin {qmin} -qmax {qmax}'\
+        + f' && ffmpeg -i {input_path}'\
         + f' -threads {THREADS} -c:a libopus -b:a {libopus_kbps}k -vcodec {codec} -crf {crf}'\
         + f' -b:v {kbps}k -vf "fps={fps},{scale}"'\
-        + f' -pass 2 {output_path}.{fmt}'
+        + f' -qmin {qmin} -qmax {qmax}'\
+        + f' -pass 2 {output_path}.{fmt} -y'
     return cmd
 
 
-def convert(mp4config, vp8config, filename, input_dir='input', output_dir='output'):
+def convert(
+        mp4config,
+        vp8config,
+        filename,
+        input_dir='input',
+        output_dir='output'):
     input_path = os.path.join(input_dir, filename)
     output_path = os.path.join(output_dir, ''.join(filename.split('.')[:-1]))
     silentremove(output_path + '.mp4')
@@ -94,6 +78,9 @@ def convert(mp4config, vp8config, filename, input_dir='input', output_dir='outpu
         logging.debug(cmd)
         subprocess.check_call(cmd, shell=True)
         logging.info(f'converted {filename} to mp4')
+
+    with tempfile.TemporaryDirectory() as dname:
+        null_path = os.path.join(dname, 'null')
         cmd = vp8cmd(input_path, output_path, null_path, vp8config)
         logging.debug(cmd)
         subprocess.check_call(cmd, shell=True)
